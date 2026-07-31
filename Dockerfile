@@ -4,6 +4,8 @@ ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
 WORKDIR /app
+# Force pnpm to use standard flat node_modules layout (no symlinks) to prevent Docker stage copying issues
+RUN echo "node-linker=hoisted" > .npmrc
 
 # Production dependencies stage
 FROM base AS prod-deps
@@ -29,12 +31,11 @@ RUN pnpm run build
 FROM node:23.11.1-slim AS runner
 WORKDIR /app
 
-# Copy production node_modules
+# Copy production node_modules (which now contains real directories, not symlinks)
 COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
 
 # Copy generated Prisma Client and engine binaries
 COPY --from=build --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=build --chown=node:node /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
 # Copy built application
 COPY --from=build --chown=node:node /app/dist ./dist
