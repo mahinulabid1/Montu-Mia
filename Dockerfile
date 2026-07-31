@@ -16,14 +16,34 @@ FROM base AS build
 COPY package.json pnpm-lock.yaml ./
 # Install all dependencies (including dev dependencies)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --ignore-scripts
+
+# Copy Prisma schema and generate client
+COPY prisma ./prisma/
+RUN pnpm prisma generate
+
+# Copy application source and compile
 COPY . .
 RUN pnpm run build
 
 # Final stage - combine production dependencies and build output
-FROM node:23.11.1-alpine AS runner
+FROM node:23.11.1-slim AS runner
 WORKDIR /app
+
+# Copy production node_modules
 COPY --from=prod-deps --chown=node:node /app/node_modules ./node_modules
+
+# Copy generated Prisma Client and engine binaries
+COPY --from=build --chown=node:node /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build --chown=node:node /app/node_modules/@prisma/client ./node_modules/@prisma/client
+
+# Copy built application
 COPY --from=build --chown=node:node /app/dist ./dist
+
+# Copy static Web UI files (required for express.static and sendFile in production)
+COPY --from=build --chown=node:node /app/src/admin-app/view ./src/admin-app/view
+
+# Copy Prisma schema for runtime reference/metadata
+COPY --from=build --chown=node:node /app/prisma ./prisma
 
 # Use the node user from the image
 USER node
