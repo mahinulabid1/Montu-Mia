@@ -21,7 +21,7 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Copy Prisma schema and generate client
 COPY prisma ./prisma/
-RUN pnpm prisma generate
+RUN pnpm run db:generate
 
 # Copy application source and compile
 COPY . .
@@ -46,16 +46,11 @@ COPY --from=build --chown=node:node /app/src/admin-app/view ./src/admin-app/view
 # Copy Prisma schema for runtime reference/metadata
 COPY --from=build --chown=node:node /app/prisma ./prisma
 
-# Copy entrypoint script and make it executable
-COPY --chown=node:node entrypoint.sh ./
-RUN chmod +x entrypoint.sh
-
 # Use the node user from the image
 USER node
 
 # Expose port 8080
 EXPOSE 8080
 
-# Configure entrypoint to apply migrations before starting the server
-ENTRYPOINT ["./entrypoint.sh"]
+# Start the server
 CMD ["node", "dist/index.js"]

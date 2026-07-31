@@ -68,9 +68,6 @@ importers:
       pino-http:
         specifier: 10.5.0
         version: 10.5.0
-      prisma:
-        specifier: ^7.8.0
-        version: 7.8.0(@types/react@19.2.17)(magicast@0.3.5)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2)
       swagger-ui-express:
         specifier: 5.0.1
         version: 5.0.1(express@5.2.1)
@@ -117,6 +114,9 @@ importers:
       prettier:
         specifier: 3.8.3
         version: 3.8.3
+      prisma:
+        specifier: ^7.8.0
+        version: 7.8.0(@types/react@19.2.17)(magicast@0.3.5)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2)
       supertest:
         specifier: 7.1.4
         version: 7.1.4
