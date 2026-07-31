@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Dashboard</title>
+    <meta name="description" content="Dashboard for managing API keys and system prompts." />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="dashboard-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar glass-panel">
+        <div
+          style="display: flex; justify-content: space-between; width: 100%; align-items: center"
+        >
+          <h2>Dashboard</h2>
+          <button class="hamburger" id="menuToggle">☰</button>
+        </div>
+        <ul class="nav-menu" id="navMenu">
+          <li class="nav-item active" data-view="api-keys">API Keys Settings</li>
+          <li class="nav-item" data-view="prompts">Prompt Settings</li>
+          <li class="logout-btn" id="logoutBtn">Log Out</li>
+        </ul>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- API Keys View -->
+        <section id="api-keys" class="view-section active">
+          <div class="section-header">
+            <h2>API Keys</h2>
+            <button class="btn btn-primary btn-sm" id="createApiKeyBtn">+ Create Key</button>
+          </div>
+          <div id="apiAlert" class="alert"></div>
+          <div class="table-container glass-panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Subject Name</th>
+                  <th>Category</th>
+                  <th>API Key</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="apiKeysTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Prompts View -->
+        <section id="prompts" class="view-section">
+          <div class="section-header">
+            <h2>Prompts</h2>
+            <button class="btn btn-primary btn-sm" id="createPromptBtn">+ Create Prompt</button>
+          </div>
+          <div id="promptAlert" class="alert"></div>
+          <div class="table-container glass-panel">
+            <table>
+              <thead>
+                <tr>
+                  <th>Prompt Name</th>
+                  <th>Category</th>
+                  <th>Value</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="promptsTableBody">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Shared Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+      <div class="modal-content" id="modalContent">
+        <div class="modal-header">
+          <h3 id="modalTitle">Modal Title</h3>
+          <button class="modal-close" id="modalClose">&times;</button>
+        </div>
+        <div id="modalAlert" class="alert"></div>
+        <div id="modalBody">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+  </body>
+</html>

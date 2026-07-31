@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>System Login</title>
+    <meta name="description" content="Secure login portal to access system features." />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="login-container">
+      <div class="login-box glass-panel">
+        <h1>Welcome Back</h1>
+        <p>Log in to access your dashboard</p>
+
+        <div id="loginAlert" class="alert"></div>
+
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="usernameOrEmail">Username or Email</label>
+            <input
+              type="text"
+              id="usernameOrEmail"
+              class="form-control"
+              required
+              placeholder="Enter your username or email"
+              autocomplete="username"
+            />
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              class="form-control"
+              required
+              placeholder="Enter your password"
+              autocomplete="current-password"
+            />
+          </div>
+          <button type="submit" class="btn btn-primary" id="loginBtn">Log In</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="login.js"></script>
+  </body>
+</html>
