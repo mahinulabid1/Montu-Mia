@@ -47,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			if (viewId === "api-keys") loadApiKeys();
 			if (viewId === "prompts") loadPrompts();
+			if (viewId === "guilds") loadGuilds();
 		});
 	});
 
@@ -384,6 +385,152 @@ document.addEventListener("DOMContentLoaded", () => {
 				});
 		}
 	});
+
+	// --- Discord Guilds & Activity ---
+	const guildsTableBody = document.getElementById("guildsTableBody");
+	const guildAlert = document.getElementById("guildAlert");
+	const refreshGuildsBtn = document.getElementById("refreshGuildsBtn");
+
+	const statTotalGuilds = document.getElementById("statTotalGuilds");
+	const statTotalUsers = document.getElementById("statTotalUsers");
+	const statTotalMessages = document.getElementById("statTotalMessages");
+
+	let currentGuildsData = null;
+
+	function formatDate(isoStr) {
+		if (!isoStr) return "N/A";
+		const date = new Date(isoStr);
+		return date.toLocaleString();
+	}
+
+	async function loadGuilds() {
+		try {
+			if (guildsTableBody) {
+				guildsTableBody.innerHTML =
+					'<tr><td colspan="6">Loading server stats...</td></tr>';
+			}
+			const data = await apiFetch("/api/guilds");
+			renderGuilds(data);
+		} catch (error) {
+			if (guildAlert) {
+				guildAlert.textContent = error.message;
+				guildAlert.classList.add("error");
+			}
+		}
+	}
+
+	function renderGuilds(summary) {
+		currentGuildsData = summary;
+		if (guildAlert) guildAlert.classList.remove("error");
+
+		if (statTotalGuilds)
+			statTotalGuilds.textContent = summary.totalGuildsTracked || 0;
+		if (statTotalUsers)
+			statTotalUsers.textContent = summary.totalUsersTracked || 0;
+		if (statTotalMessages)
+			statTotalMessages.textContent = summary.totalMessagesTracked || 0;
+
+		const guilds = summary.guilds || [];
+		if (!guildsTableBody) return;
+
+		if (guilds.length === 0) {
+			guildsTableBody.innerHTML =
+				'<tr><td colspan="6">No active Discord servers recorded yet.</td></tr>';
+			return;
+		}
+
+		guildsTableBody.innerHTML = guilds
+			.map((g) => {
+				const name = g.name || "Unknown Server";
+				const initial = name.charAt(0) || "S";
+				return `
+			<tr>
+				<td>
+					<div class="guild-info">
+						${g.iconUrl ? `<img src="${g.iconUrl}" class="guild-icon" alt="${name}">` : `<div class="guild-icon-placeholder">${initial}</div>`}
+						<strong>${name}</strong>
+					</div>
+				</td>
+				<td><code>${g.id}</code></td>
+				<td><span class="badge">${g.memberCount || 0} members</span></td>
+				<td><span class="badge badge-success">${g.totalMessages || 0} msgs</span></td>
+				<td>${formatDate(g.lastActiveAt)}</td>
+				<td class="actions">
+					<button class="action-btn view-guild-users-btn" data-id="${g.id}">View Users (${g.users ? g.users.length : 0})</button>
+				</td>
+			</tr>
+		`;
+			})
+			.join("");
+	}
+
+	if (refreshGuildsBtn) {
+		refreshGuildsBtn.addEventListener("click", () => loadGuilds());
+	}
+
+	if (guildsTableBody) {
+		guildsTableBody.addEventListener("click", (e) => {
+			if (e.target.classList.contains("view-guild-users-btn")) {
+				const guildId = e.target.getAttribute("data-id");
+				if (!currentGuildsData || !currentGuildsData.guilds) return;
+
+				const guild = currentGuildsData.guilds.find((g) => g.id === guildId);
+				if (!guild) return;
+
+				const users = guild.users || [];
+				let usersHtml = "";
+
+				if (users.length === 0) {
+					usersHtml = "<p>No active users recorded in this server yet.</p>";
+				} else {
+					usersHtml = `
+						<div class="table-container">
+							<table>
+								<thead>
+									<tr>
+										<th>User</th>
+										<th>ID</th>
+										<th>Role/Bot</th>
+										<th>Messages</th>
+										<th>Last Active</th>
+									</tr>
+								</thead>
+								<tbody>
+									${users
+										.map((u) => {
+											const displayName =
+												u.displayName || u.username || "Unknown User";
+											const username = u.username || "unknown";
+											const userInitial = displayName.charAt(0) || "U";
+											return `
+										<tr>
+											<td>
+												<div class="user-cell">
+													${u.avatarUrl ? `<img src="${u.avatarUrl}" class="user-avatar" alt="${displayName}">` : `<div class="user-avatar-placeholder">${userInitial}</div>`}
+													<div>
+														<div><strong>${displayName}</strong></div>
+														<div style="font-size: 0.75rem; color: var(--text-muted)">@${username}</div>
+													</div>
+												</div>
+											</td>
+											<td><code>${u.id}</code></td>
+											<td>${u.bot ? '<span class="badge badge-bot">BOT</span>' : '<span class="badge">USER</span>'}</td>
+											<td><strong>${u.messageCount || 0}</strong></td>
+											<td>${formatDate(u.lastActiveAt)}</td>
+										</tr>
+									`;
+										})
+										.join("")}
+								</tbody>
+							</table>
+						</div>
+					`;
+				}
+
+				openModal(`Active Users in ${guild.name || "Server"}`, usersHtml);
+			}
+		});
+	}
 
 	// Init
 	loadApiKeys();

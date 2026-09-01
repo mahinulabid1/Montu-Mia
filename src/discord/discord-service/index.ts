@@ -1,6 +1,7 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import { pino } from "pino";
 import { ChaosChatV1 } from "@/discord/chaos-chat/v1";
+import { guildStore } from "@/discord/discord-service/guild-store";
 
 const logger = pino({ name: "discord-service" });
 
@@ -28,6 +29,11 @@ export const startDiscordBot = async () => {
 			logger.info("✅ Slash commands cleared");
 		}
 
+		// Seed initial connected guilds into memory store
+		discordClient.guilds.cache.forEach((guild) => {
+			guildStore.registerGuild(guild);
+		});
+
 		// Initialize only V1
 		const chaosChat = new ChaosChatV1(discordClient);
 		logger.info("✅ ChaosChatV1 initialized");
@@ -35,6 +41,10 @@ export const startDiscordBot = async () => {
 		// Register Chaos Chat gateway listeners
 		discordClient.on("messageCreate", async (message) => {
 			try {
+				console.log("new message");
+				// Record guild and user stats in memory
+				guildStore.recordMessage(message);
+
 				await chaosChat.handleMessage(message);
 			} catch (err) {
 				logger.error({ err }, "Error handling messageCreate event");

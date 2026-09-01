@@ -5,6 +5,7 @@ import path from "path";
 import { pino } from "pino";
 import { apiKeyRouter } from "@/admin-app/controller/apikeys/apiKeyRouter";
 import { authRouter } from "@/admin-app/controller/auth/authRouter";
+import { guildRouter } from "@/admin-app/controller/guilds/guildRouter";
 import { promptRouter } from "@/admin-app/controller/prompts/promptRouter";
 import { userRouter } from "@/admin-app/controller/user/userRouter";
 import { startDiscordBot } from "@/discord/discord-service";
@@ -28,6 +29,7 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRouter);
 app.use("/api/apikeys", apiKeyRouter);
 app.use("/api/prompts", promptRouter);
+app.use("/api/guilds", guildRouter);
 app.use("/users", userRouter);
 
 // App Interface UI

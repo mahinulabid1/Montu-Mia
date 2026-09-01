@@ -407,3 +407,70 @@ td {
 		transform: translateY(0);
 	}
 }
+
+/* --- DISCORD ACTIVITY STYLES --- */
+.metrics-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: 1.25rem;
+}
+
+.metric-card {
+	padding: 1.5rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+}
+
+.metric-label {
+	font-size: 0.85rem;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	font-weight: 500;
+}
+
+.metric-value {
+	font-size: 2rem;
+	font-weight: 700;
+	color: var(--text-main);
+}
+
+.guild-info,
+.user-cell {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.guild-icon,
+.user-avatar {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.guild-icon-placeholder,
+.user-avatar-placeholder {
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background: var(--primary-color);
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 0.9rem;
+}
+
+.badge-success {
+	background: rgba(16, 185, 129, 0.2);
+	color: #34d399;
+}
+
+.badge-bot {
+	background: rgba(245, 158, 11, 0.2);
+	color: #fbbf24;
+}
