@@ -1,15 +1,5 @@
 import type { Guild, Message } from "discord.js";
 
-export interface GuildUserTrack {
-	id: string;
-	username: string;
-	displayName: string;
-	avatarUrl: string | null;
-	bot: boolean;
-	messageCount: number;
-	lastActiveAt: string;
-}
-
 export interface GuildChannelTrack {
 	id: string;
 	name: string;
@@ -25,12 +15,11 @@ export interface GuildTrack {
 	totalMessages: number;
 	lastActiveAt: string;
 	channels: GuildChannelTrack[];
-	users: GuildUserTrack[];
 }
 
 export interface GuildStoreSummary {
 	totalGuildsTracked: number;
-	totalUsersTracked: number;
+	totalChannelsTracked: number;
 	totalMessagesTracked: number;
 	guilds: GuildTrack[];
 }
@@ -46,7 +35,6 @@ class GuildStore {
 			totalMessages: number;
 			lastActiveAt: string;
 			channels: Map<string, GuildChannelTrack>;
-			users: Map<string, GuildUserTrack>;
 		}
 	>();
 
@@ -75,7 +63,6 @@ class GuildStore {
 				totalMessages: 0,
 				lastActiveAt: nowStr,
 				channels: new Map(),
-				users: new Map(),
 			});
 		}
 	}
@@ -105,7 +92,6 @@ class GuildStore {
 				totalMessages: 0,
 				lastActiveAt: nowStr,
 				channels: new Map(),
-				users: new Map(),
 			};
 			this.guildsMap.set(guildId, guildRecord);
 		} else {
@@ -134,40 +120,6 @@ class GuildStore {
 				lastActiveAt: nowStr,
 			});
 		}
-
-		// Record User activity
-		if (message.author) {
-			const userId = message.author.id;
-			const username = message.author.username || "unknown";
-			const displayName =
-				message.member?.displayName ||
-				message.author.displayName ||
-				message.author.username ||
-				"Unknown User";
-			const avatarUrl =
-				typeof message.author.displayAvatarURL === "function"
-					? message.author.displayAvatarURL()
-					: null;
-			const bot = message.author.bot || false;
-
-			const existingUser = guildRecord.users.get(userId);
-			if (existingUser) {
-				existingUser.displayName = displayName;
-				existingUser.avatarUrl = avatarUrl;
-				existingUser.messageCount += 1;
-				existingUser.lastActiveAt = nowStr;
-			} else {
-				guildRecord.users.set(userId, {
-					id: userId,
-					username,
-					displayName,
-					avatarUrl,
-					bot,
-					messageCount: 1,
-					lastActiveAt: nowStr,
-				});
-			}
-		}
 	}
 
 	/**
@@ -175,14 +127,12 @@ class GuildStore {
 	 */
 	getSummary(): GuildStoreSummary {
 		let totalMessagesTracked = 0;
-		const allUsersSet = new Set<string>();
+		let totalChannelsTracked = 0;
 		const guildsList: GuildTrack[] = [];
 
 		for (const g of this.guildsMap.values()) {
 			totalMessagesTracked += g.totalMessages;
-			for (const uId of g.users.keys()) {
-				allUsersSet.add(uId);
-			}
+			totalChannelsTracked += g.channels.size;
 
 			guildsList.push({
 				id: g.id,
@@ -192,15 +142,12 @@ class GuildStore {
 				totalMessages: g.totalMessages,
 				lastActiveAt: g.lastActiveAt,
 				channels: Array.from(g.channels.values()),
-				users: Array.from(g.users.values()).sort(
-					(a, b) => b.messageCount - a.messageCount,
-				),
 			});
 		}
 
 		return {
 			totalGuildsTracked: this.guildsMap.size,
-			totalUsersTracked: allUsersSet.size,
+			totalChannelsTracked,
 			totalMessagesTracked,
 			guilds: guildsList,
 		};
@@ -220,9 +167,6 @@ class GuildStore {
 			totalMessages: g.totalMessages,
 			lastActiveAt: g.lastActiveAt,
 			channels: Array.from(g.channels.values()),
-			users: Array.from(g.users.values()).sort(
-				(a, b) => b.messageCount - a.messageCount,
-			),
 		};
 	}
 

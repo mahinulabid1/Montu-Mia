@@ -10,7 +10,7 @@ describe("GuildStore In-Memory Service", () => {
 	it("should initialize empty summary statistics", () => {
 		const summary = guildStore.getSummary();
 		expect(summary.totalGuildsTracked).toBe(0);
-		expect(summary.totalUsersTracked).toBe(0);
+		expect(summary.totalChannelsTracked).toBe(0);
 		expect(summary.totalMessagesTracked).toBe(0);
 		expect(summary.guilds).toEqual([]);
 	});
@@ -33,7 +33,7 @@ describe("GuildStore In-Memory Service", () => {
 		expect(summary.guilds[0].totalMessages).toBe(0);
 	});
 
-	it("should record messages and track user/channel statistics", () => {
+	it("should record messages and track channel statistics without storing user objects", () => {
 		const mockMessage = {
 			guild: {
 				id: "guild_456",
@@ -46,23 +46,13 @@ describe("GuildStore In-Memory Service", () => {
 				name: "general",
 				type: 0,
 			},
-			author: {
-				id: "user_001",
-				username: "alice",
-				displayName: "Alice",
-				displayAvatarURL: () => "https://cdn.discordapp.com/avatars/alice.png",
-				bot: false,
-			},
-			member: {
-				displayName: "Alice Smith",
-			},
 		} as unknown as Message;
 
 		guildStore.recordMessage(mockMessage);
 
 		const summary = guildStore.getSummary();
 		expect(summary.totalGuildsTracked).toBe(1);
-		expect(summary.totalUsersTracked).toBe(1);
+		expect(summary.totalChannelsTracked).toBe(1);
 		expect(summary.totalMessagesTracked).toBe(1);
 
 		const guild = summary.guilds[0];
@@ -70,11 +60,6 @@ describe("GuildStore In-Memory Service", () => {
 		expect(guild.totalMessages).toBe(1);
 		expect(guild.channels.length).toBe(1);
 		expect(guild.channels[0].name).toBe("general");
-
-		expect(guild.users.length).toBe(1);
-		expect(guild.users[0].id).toBe("user_001");
-		expect(guild.users[0].displayName).toBe("Alice Smith");
-		expect(guild.users[0].messageCount).toBe(1);
 	});
 
 	it("should increment message counts for repeated messages", () => {
@@ -90,13 +75,6 @@ describe("GuildStore In-Memory Service", () => {
 				name: "general",
 				type: 0,
 			},
-			author: {
-				id: "user_001",
-				username: "alice",
-				displayName: "Alice",
-				displayAvatarURL: () => null,
-				bot: false,
-			},
 		} as unknown as Message;
 
 		guildStore.recordMessage(mockMessage);
@@ -105,6 +83,5 @@ describe("GuildStore In-Memory Service", () => {
 		const guild = guildStore.getGuildById("guild_456");
 		expect(guild).not.toBeNull();
 		expect(guild?.totalMessages).toBe(2);
-		expect(guild?.users[0].messageCount).toBe(2);
 	});
 });

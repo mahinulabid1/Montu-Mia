@@ -27,7 +27,7 @@ describe("Guilds REST API Endpoints", () => {
 
 			expect(res.status).toBe(200);
 			expect(res.body).toHaveProperty("totalGuildsTracked");
-			expect(res.body).toHaveProperty("totalUsersTracked");
+			expect(res.body).toHaveProperty("totalChannelsTracked");
 			expect(res.body).toHaveProperty("totalMessagesTracked");
 			expect(Array.isArray(res.body.guilds)).toBe(true);
 		});

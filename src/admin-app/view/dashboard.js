@@ -392,7 +392,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	const refreshGuildsBtn = document.getElementById("refreshGuildsBtn");
 
 	const statTotalGuilds = document.getElementById("statTotalGuilds");
-	const statTotalUsers = document.getElementById("statTotalUsers");
+	const statTotalChannels = document.getElementById("statTotalChannels");
 	const statTotalMessages = document.getElementById("statTotalMessages");
 
 	let currentGuildsData = null;
@@ -425,8 +425,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (statTotalGuilds)
 			statTotalGuilds.textContent = summary.totalGuildsTracked || 0;
-		if (statTotalUsers)
-			statTotalUsers.textContent = summary.totalUsersTracked || 0;
+		if (statTotalChannels)
+			statTotalChannels.textContent = summary.totalChannelsTracked || 0;
 		if (statTotalMessages)
 			statTotalMessages.textContent = summary.totalMessagesTracked || 0;
 
@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				<td><span class="badge badge-success">${g.totalMessages || 0} msgs</span></td>
 				<td>${formatDate(g.lastActiveAt)}</td>
 				<td class="actions">
-					<button class="action-btn view-guild-users-btn" data-id="${g.id}">View Users (${g.users ? g.users.length : 0})</button>
+					<button class="action-btn view-guild-channels-btn" data-id="${g.id}">View Channels (${g.channels ? g.channels.length : 0})</button>
 				</td>
 			</tr>
 		`;
@@ -470,53 +470,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	if (guildsTableBody) {
 		guildsTableBody.addEventListener("click", (e) => {
-			if (e.target.classList.contains("view-guild-users-btn")) {
+			if (e.target.classList.contains("view-guild-channels-btn")) {
 				const guildId = e.target.getAttribute("data-id");
 				if (!currentGuildsData || !currentGuildsData.guilds) return;
 
 				const guild = currentGuildsData.guilds.find((g) => g.id === guildId);
 				if (!guild) return;
 
-				const users = guild.users || [];
-				let usersHtml = "";
+				const channels = guild.channels || [];
+				let channelsHtml = "";
 
-				if (users.length === 0) {
-					usersHtml = "<p>No active users recorded in this server yet.</p>";
+				if (channels.length === 0) {
+					channelsHtml =
+						"<p>No active channels recorded in this server yet.</p>";
 				} else {
-					usersHtml = `
+					channelsHtml = `
 						<div class="table-container">
 							<table>
 								<thead>
 									<tr>
-										<th>User</th>
+										<th>Channel Name</th>
 										<th>ID</th>
-										<th>Role/Bot</th>
-										<th>Messages</th>
 										<th>Last Active</th>
 									</tr>
 								</thead>
 								<tbody>
-									${users
-										.map((u) => {
-											const displayName =
-												u.displayName || u.username || "Unknown User";
-											const username = u.username || "unknown";
-											const userInitial = displayName.charAt(0) || "U";
+									${channels
+										.map((c) => {
+											const channelName = c.name || "unknown";
 											return `
 										<tr>
-											<td>
-												<div class="user-cell">
-													${u.avatarUrl ? `<img src="${u.avatarUrl}" class="user-avatar" alt="${displayName}">` : `<div class="user-avatar-placeholder">${userInitial}</div>`}
-													<div>
-														<div><strong>${displayName}</strong></div>
-														<div style="font-size: 0.75rem; color: var(--text-muted)">@${username}</div>
-													</div>
-												</div>
-											</td>
-											<td><code>${u.id}</code></td>
-											<td>${u.bot ? '<span class="badge badge-bot">BOT</span>' : '<span class="badge">USER</span>'}</td>
-											<td><strong>${u.messageCount || 0}</strong></td>
-											<td>${formatDate(u.lastActiveAt)}</td>
+											<td><strong>#${channelName}</strong></td>
+											<td><code>${c.id}</code></td>
+											<td>${formatDate(c.lastActiveAt)}</td>
 										</tr>
 									`;
 										})
@@ -527,7 +513,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					`;
 				}
 
-				openModal(`Active Users in ${guild.name || "Server"}`, usersHtml);
+				openModal(`Active Channels in ${guild.name || "Server"}`, channelsHtml);
 			}
 		});
 	}
