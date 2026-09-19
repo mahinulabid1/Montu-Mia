@@ -423,7 +423,8 @@ export class ChaosChatV1 implements IChaosChatProcessor {
 		const messageHistory = messageHistoryServiceV2.getHistoryPrompt(
 			message.channelId,
 		);
-		const model = process.env.OLLAMA_CHAT_MODEL || "nemotron-3-ultra:cloud";
+		// const model = process.env.OLLAMA_CHAT_MODEL || "nemotron-3-ultra:cloud";
+		const model = process.env.OLLAMA_CHAT_MODEL || 'gemma4:31b-cloud';
 
 		const currentReplyTo = await this.resolveReplyTarget(message);
 		const currentReplyPart = currentReplyTo
@@ -473,6 +474,11 @@ Your response:
 					content: userPromptContent,
 				},
 			],
+			options: {
+				// temperature: 0.6,
+				// top_p: 0.9,
+				repeat_penalty: 1.1,
+			},
 		});
 
 		if (response.status === "failed" || !response.content) {
