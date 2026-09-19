@@ -450,6 +450,7 @@ REPLY & MENTION HANDLING RULES (STRICT):
 - Pronouns like "it", "this", "that" in replies refer to the REPLIED-TO message's content.
 - When addressing a reply, acknowledge both the replier AND the original speaker if relevant.
 - Never ignore reply context—it defines the conversation's focus.
+- Avoid duplicate user mention, don't mention same user more than once.
 `;
 
 		const userPromptContent = `
