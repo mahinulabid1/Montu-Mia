@@ -124,7 +124,6 @@ export class MessageQueueService {
 		}
 
 		try {
-			this.startTyping(message);
 			// Delegate the actual reply generation and history saving to ChaosChatV1 via the callback
 			await this.processCallback(message);
 			console.log(

@@ -197,6 +197,23 @@ export class ChaosChatV1 implements IChaosChatProcessor {
 			return;
 		}
 
+		// Trigger typing indicator once LLM generates response
+		try {
+			if (
+				message.channel &&
+				typeof (message.channel as any).sendTyping === "function"
+			) {
+				await (message.channel as any).sendTyping();
+			}
+		} catch (err) {
+			logger.warn(
+				`[ChaosChatV1] Failed to send typing indicator: ${err instanceof Error ? err.message : String(err)}`,
+			);
+		}
+
+		// Show typing for 2 seconds before sending the reply
+		await new Promise((resolve) => setTimeout(resolve, 2000));
+
 		replyMessage = this.sanitizeReply(replyMessage);
 
 		// Resolve user reply targets first before adding user message to history
